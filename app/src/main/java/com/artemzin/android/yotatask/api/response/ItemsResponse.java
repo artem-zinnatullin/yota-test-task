@@ -1,5 +1,6 @@
 package com.artemzin.android.yotatask.api.response;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
@@ -21,6 +22,9 @@ public class ItemsResponse {
 
     public static class Item {
 
+        @SerializedName("id")
+        @NonNull private String mId;
+
         @SerializedName("pos")
         private int mPos;
 
@@ -28,7 +32,11 @@ public class ItemsResponse {
         @Nullable private String mName;
 
         @SerializedName("price")
-        @Nullable private BigDecimal mPrice;
+        @NonNull private BigDecimal mPrice;
+
+        @NonNull public String getId() {
+            return mId;
+        }
 
         public int getPos() {
             return mPos;
@@ -38,7 +46,7 @@ public class ItemsResponse {
             return mName;
         }
 
-        @Nullable public BigDecimal getPrice() {
+        @NonNull public BigDecimal getPrice() {
             return mPrice;
         }
     }

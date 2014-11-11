@@ -6,7 +6,12 @@ import android.support.annotation.NonNull;
 import com.artemzin.android.yotatask.api.ApiModule;
 import com.artemzin.android.yotatask.model.ActiveModelModule;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
+import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
 import com.artemzin.android.yotatask.ui.fragment.ItemsListFragment;
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -21,7 +26,8 @@ import dagger.Provides;
         },
         injects = {
             ItemsActiveModel.class,
-            ItemsListFragment.class
+            ItemsListFragment.class,
+            ItemsAdapter.class
         }
 )
 public class AppModule {
@@ -34,5 +40,9 @@ public class AppModule {
 
     @Provides @NonNull public Context provideApplicationContext() {
         return mYotaTaskApp;
+    }
+
+    @Provides @NonNull @Singleton public Bus provideEventBus() {
+        return new Bus(ThreadEnforcer.MAIN);
     }
 }

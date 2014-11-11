@@ -9,15 +9,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.artemzin.android.yotatask.R;
 import com.artemzin.android.yotatask.YotaTaskApp;
 import com.artemzin.android.yotatask.api.response.ItemsResponse;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
 import com.artemzin.android.yotatask.model.Task;
+import com.artemzin.android.yotatask.ui.adapter.ItemQuantityChangedEvent;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
+import com.artemzin.android.yotatask.ui.adapter.ResetQuantityOfItemsEvent;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -48,19 +56,33 @@ public class ItemsListFragment extends Fragment {
     @InjectView(R.id.items_list_content_ui)
     View mContentUi;
 
-    @NonNull RecyclerView mRecyclerView;
+    @InjectView(R.id.items_list_content_ui_recycler_view)
+    RecyclerView mRecyclerView;
 
     @NonNull ItemsAdapter mItemsAdapter;
 
+    @InjectView(R.id.items_list_content_ui_total_sum_text_view)
+    TextView mTotalSumTextView;
+
     //endregion
 
+    @Inject Bus mEventBus;
+
     @Inject ItemsActiveModel mItemsActiveModel;
+
+    // map for storing pairs [(item_id, item_quantity)]
+    Map<String, Integer> mItemIdAndQuantityMap = new HashMap<String, Integer>();
+
+    // map for storing pairs [(item_id, item_info)]
+    Map<String, ItemsResponse.Item> mItemIdAndItemMap = new HashMap<String, ItemsResponse.Item>();
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         YotaTaskApp.get(getActivity()).inject(this);
-        mItemsAdapter = new ItemsAdapter();
+        mItemsAdapter = new ItemsAdapter(getActivity());
+
+        mEventBus.register(this);
 
         reloadItems();
     }
@@ -74,12 +96,18 @@ public class ItemsListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.inject(this, view);
 
-        mRecyclerView = (RecyclerView) mContentUi;
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(layoutManager);
 
         mRecyclerView.setAdapter(mItemsAdapter);
+
+        recalculateCart();
+    }
+
+    @Override public void onDestroy() {
+        mEventBus.unregister(this);
+        mItemsAdapter.release();
+        super.onDestroy();
     }
 
     private void setUiStateLoading() {
@@ -122,6 +150,12 @@ public class ItemsListFragment extends Fragment {
             }
 
             @Override public void onDataProcessed(List<ItemsResponse.Item> items) {
+                mItemIdAndItemMap.clear();
+                // storing items as map for Cart functionality
+                for (ItemsResponse.Item item : items) {
+                    mItemIdAndItemMap.put(item.getId(), item);
+                }
+
                 mItemsAdapter.setData(items);
 
                 if (items.size() == 0) {
@@ -131,5 +165,34 @@ public class ItemsListFragment extends Fragment {
                 }
             }
         });
+    }
+
+    // works via EventBus
+    @Subscribe
+    public void onItemQuantityChanged(@NonNull ItemQuantityChangedEvent event) {
+        mItemIdAndQuantityMap.put(event.itemId, event.quantity);
+        recalculateCart();
+    }
+
+    void recalculateCart() {
+        BigDecimal totalCartSum = new BigDecimal(0);
+
+        for (String itemId : mItemIdAndQuantityMap.keySet()) {
+            int quantity = mItemIdAndQuantityMap.get(itemId);
+
+            if (quantity > 0) {
+                totalCartSum = totalCartSum.add(mItemIdAndItemMap.get(itemId).getPrice().multiply(new BigDecimal(quantity)));
+            }
+        }
+
+        mTotalSumTextView.setText(getString(R.string.items_list_content_ui_total_sum, ItemsAdapter.formatPrice(totalCartSum)));
+    }
+
+    @OnClick(R.id.items_list_content_ui_add_to_cart_button)
+    void addSelectedItemsToCart() {
+        mEventBus.post(new ResetQuantityOfItemsEvent());
+
+        mItemIdAndQuantityMap.clear();
+        recalculateCart();
     }
 }

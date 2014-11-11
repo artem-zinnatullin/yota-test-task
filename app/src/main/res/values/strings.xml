@@ -6,5 +6,7 @@
     <string name="items_list_error">Произошла ошибка при загрузке товаров</string>
     <string name="try_again_button">Попробовать еще раз</string>
     <string name="items_list_empty">Список товаров пуст</string>
+    <string name="items_list_content_ui_add_to_cart_button">Добавить в корзину</string>
+    <string name="items_list_content_ui_total_sum">Итого: %s</string>
 
 </resources>
