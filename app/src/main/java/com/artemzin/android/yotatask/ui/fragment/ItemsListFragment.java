@@ -16,6 +16,7 @@ import com.artemzin.android.yotatask.YotaTaskApp;
 import com.artemzin.android.yotatask.api.response.ItemsResponse;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
 import com.artemzin.android.yotatask.model.Task;
+import com.artemzin.android.yotatask.ui.activity.AddItemsToCartEvent;
 import com.artemzin.android.yotatask.ui.adapter.ItemQuantityChangedEvent;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
 import com.artemzin.android.yotatask.ui.adapter.ResetQuantityOfItemsEvent;
@@ -190,9 +191,27 @@ public class ItemsListFragment extends Fragment {
 
     @OnClick(R.id.items_list_content_ui_add_to_cart_button)
     void addSelectedItemsToCart() {
+        // map with [(item, quantity)] to add to global cart
+        Map<ItemsResponse.Item, Integer> itemAndQuantityMap = new HashMap<ItemsResponse.Item, Integer>();
+
+        for (String itemId : mItemIdAndQuantityMap.keySet()) {
+            Integer quantity = mItemIdAndQuantityMap.get(itemId);
+
+            if (quantity > 0) {
+                itemAndQuantityMap.put(mItemIdAndItemMap.get(itemId), quantity);
+            }
+        }
+
+        // notifying global cart about addition
+        mEventBus.post(new AddItemsToCartEvent(itemAndQuantityMap));
+
+        // resetting list state
         mEventBus.post(new ResetQuantityOfItemsEvent());
 
+        // clearing local info about quantity of items
         mItemIdAndQuantityMap.clear();
+
+        // recalculating current selected items
         recalculateCart();
     }
 }

@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.artemzin.android.yotatask.api.ApiModule;
 import com.artemzin.android.yotatask.model.ActiveModelModule;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
+import com.artemzin.android.yotatask.ui.activity.MainActivity;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
 import com.artemzin.android.yotatask.ui.fragment.ItemsListFragment;
 import com.squareup.otto.Bus;
@@ -27,7 +28,8 @@ import dagger.Provides;
         injects = {
             ItemsActiveModel.class,
             ItemsListFragment.class,
-            ItemsAdapter.class
+            ItemsAdapter.class,
+            MainActivity.class
         }
 )
 public class AppModule {
