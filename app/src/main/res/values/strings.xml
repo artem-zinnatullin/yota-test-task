@@ -2,7 +2,9 @@
 <resources>
 
     <string name="app_name">Yota Task</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="items_list_loading">Загрузка товаров…</string>
+    <string name="items_list_error">Произошла ошибка при загрузке товаров</string>
+    <string name="try_again_button">Попробовать еще раз</string>
+    <string name="items_list_empty">Список товаров пуст</string>
 
 </resources>

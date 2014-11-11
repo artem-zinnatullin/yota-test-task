@@ -17,9 +17,44 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    // Android AppCompat library
     compile 'com.android.support:appcompat-v7:21.0.0'
+
+    // View injection library
+    compile 'com.jakewharton:butterknife:6.0.0'
+
+    // JSON parsing/serializing library
+    compile 'com.google.code.gson:gson:2.3'
+
+    // REST service library
+    compile 'com.squareup.retrofit:retrofit:1.7.1'
+
+    // OkHTTP client
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
+
+    // OkHttp to UrlConnection adapter
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+
+    // Dependency Injection library
+    compile 'com.squareup.dagger:dagger:1.2.2'
+
+    // Dependency Injection library compile-time part
+    compile 'com.squareup.dagger:dagger-compiler:1.2.2'
+
+    // Android RecyclerView widget
+    compile 'com.android.support:recyclerview-v7:21.0.0'
+
+    // Android CardView widget
+    compile 'com.android.support:cardview-v7:21.0.0'
 }
