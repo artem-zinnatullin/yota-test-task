@@ -6,9 +6,13 @@ import android.support.annotation.NonNull;
 import com.artemzin.android.yotatask.api.ApiModule;
 import com.artemzin.android.yotatask.model.ActiveModelModule;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
+import com.artemzin.android.yotatask.storage.SharedPreferencesManager;
+import com.artemzin.android.yotatask.storage.StorageModule;
 import com.artemzin.android.yotatask.ui.activity.MainActivity;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
+import com.artemzin.android.yotatask.ui.fragment.CartFragment;
 import com.artemzin.android.yotatask.ui.fragment.ItemsListFragment;
+import com.google.gson.Gson;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
@@ -23,13 +27,16 @@ import dagger.Provides;
 @Module(
         includes = {
             ApiModule.class,
-            ActiveModelModule.class
+            ActiveModelModule.class,
+            StorageModule.class
         },
         injects = {
             ItemsActiveModel.class,
             ItemsListFragment.class,
             ItemsAdapter.class,
-            MainActivity.class
+            MainActivity.class,
+            SharedPreferencesManager.class,
+            CartFragment.class
         }
 )
 public class AppModule {
@@ -46,5 +53,9 @@ public class AppModule {
 
     @Provides @NonNull @Singleton public Bus provideEventBus() {
         return new Bus(ThreadEnforcer.MAIN);
+    }
+
+    @Provides @NonNull public Gson provideGson() {
+        return new Gson();
     }
 }

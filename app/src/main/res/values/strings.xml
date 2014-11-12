@@ -9,4 +9,5 @@
     <string name="items_list_content_ui_add_to_cart_button">Добавить в корзину</string>
     <string name="items_list_content_ui_total_sum">Итого: %s</string>
     <string name="main_cart_menu_item_empty_title">В корзине пусто</string>
+    <string name="cart_send_order_button">Отправить заказ</string>
 </resources>

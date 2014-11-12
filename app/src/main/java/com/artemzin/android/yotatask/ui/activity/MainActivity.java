@@ -1,5 +1,6 @@
 package com.artemzin.android.yotatask.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
@@ -50,9 +51,18 @@ public class MainActivity extends ActionBarActivity {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.cart, menu);
-        mCartMenuItem = menu.findItem(R.id.menu_cart_total_sum_item);
+        mCartMenuItem = menu.findItem(R.id.menu_item_cart_total_sum);
 
         return true;
+    }
+
+    @Override public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_cart_total_sum) {
+            startActivity(new Intent(this, CartActivity.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override protected void onDestroy() {
@@ -94,5 +104,9 @@ public class MainActivity extends ActionBarActivity {
         } else {
             mCartMenuItem.setTitle(getString(R.string.items_list_content_ui_total_sum, ItemsAdapter.formatPrice(totalCartSum)));
         }
+    }
+
+    void saveCartToSharedPreferences() {
+        getSharedPreferences()
     }
 }
