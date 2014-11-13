@@ -3,6 +3,7 @@ package com.artemzin.android.yotatask.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,25 +11,26 @@ import android.view.MenuItem;
 import com.artemzin.android.yotatask.R;
 import com.artemzin.android.yotatask.YotaTaskApp;
 import com.artemzin.android.yotatask.api.response.ItemsResponse;
+import com.artemzin.android.yotatask.storage.Cart;
+import com.artemzin.android.yotatask.storage.SharedPreferencesManager;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
 import com.artemzin.android.yotatask.ui.fragment.ItemsListFragment;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
-
 
 public class MainActivity extends ActionBarActivity {
 
     @Inject Bus mEventBus;
 
-    @NonNull MenuItem mCartMenuItem;
+    @Inject SharedPreferencesManager mSharedPreferencesManager;
 
-    @NonNull Map<ItemsResponse.Item, Integer> mItemAndQuantityMap = new HashMap<ItemsResponse.Item, Integer>();
+    @Nullable MenuItem mCartMenuItem;
+
+    @NonNull Cart mCart = new Cart();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
+            mSharedPreferencesManager.saveCart(null); // clearing cart on app start
+
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.main_frame_layout, ItemsListFragment.newInstance())
@@ -53,16 +57,24 @@ public class MainActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.cart, menu);
         mCartMenuItem = menu.findItem(R.id.menu_item_cart_total_sum);
 
+        recalculateCart();
+
         return true;
     }
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_item_cart_total_sum) {
+            saveCart();
             startActivity(new Intent(this, CartActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override protected void onStart() {
+        super.onStart();
+        reloadCart();
     }
 
     @Override protected void onDestroy() {
@@ -73,40 +85,30 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void onAddItemsToCartEvent(@NonNull AddItemsToCartEvent event) {
         for (ItemsResponse.Item item : event.itemAndQuantityMap.keySet()) {
-            Integer prevQuantityOfItem = mItemAndQuantityMap.get(item);
-
-            // to avoid NPE
-            if (prevQuantityOfItem == null) {
-                prevQuantityOfItem = 0;
-            }
-
-            Integer additionalQuantityOfItem = event.itemAndQuantityMap.get(item);
-
-            mItemAndQuantityMap.put(item, prevQuantityOfItem + additionalQuantityOfItem);
+            mCart.add(new Cart.CartItem(item, event.itemAndQuantityMap.get(item)));
         }
 
         recalculateCart();
     }
 
+    void reloadCart() {
+        mCart = mSharedPreferencesManager.readCart();
+        recalculateCart();
+    }
+
     void recalculateCart() {
-        BigDecimal totalCartSum = new BigDecimal(0);
+        BigDecimal totalCartSum = mCart.calculateTotalSum();
 
-        for (ItemsResponse.Item item : mItemAndQuantityMap.keySet()) {
-            int quantity = mItemAndQuantityMap.get(item);
-
-            if (quantity > 0) {
-                totalCartSum = totalCartSum.add(item.getPrice().multiply(new BigDecimal(quantity)));
+        if (mCartMenuItem != null) {
+            if (totalCartSum.equals(new BigDecimal(0))) {
+                mCartMenuItem.setTitle(R.string.main_cart_menu_item_empty_title);
+            } else {
+                mCartMenuItem.setTitle(getString(R.string.items_list_content_ui_total_sum, ItemsAdapter.formatPrice(totalCartSum)));
             }
-        }
-
-        if (totalCartSum.equals(new BigDecimal(0))) {
-            mCartMenuItem.setTitle(R.string.main_cart_menu_item_empty_title);
-        } else {
-            mCartMenuItem.setTitle(getString(R.string.items_list_content_ui_total_sum, ItemsAdapter.formatPrice(totalCartSum)));
         }
     }
 
-    void saveCartToSharedPreferences() {
-        getSharedPreferences()
+    void saveCart() {
+        mSharedPreferencesManager.saveCart(mCart);
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,10 @@ import com.artemzin.android.yotatask.R;
 import com.artemzin.android.yotatask.YotaTaskApp;
 import com.artemzin.android.yotatask.storage.Cart;
 import com.artemzin.android.yotatask.storage.SharedPreferencesManager;
+import com.artemzin.android.yotatask.ui.adapter.CartItemsAdapter;
+import com.artemzin.android.yotatask.ui.adapter.OnItemRemoveFromCartEvent;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
@@ -31,11 +36,17 @@ public class CartFragment extends Fragment {
     @InjectView(R.id.cart_recycler_view)
     RecyclerView mRecyclerView;
 
+    @NonNull CartItemsAdapter mCartItemsAdapter;
+
     @Inject SharedPreferencesManager mSharedPreferencesManager;
+
+    @Inject Bus mEventBus;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         YotaTaskApp.get(getActivity()).inject(this);
+        mCartItemsAdapter = new CartItemsAdapter(getActivity());
+        mEventBus.register(this);
     }
 
     @Override
@@ -46,16 +57,32 @@ public class CartFragment extends Fragment {
     @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.inject(this, view);
-
-
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        mRecyclerView.setAdapter(mCartItemsAdapter);
     }
 
-    void reloadCart() {
-        Cart cart = mSharedPreferencesManager.readCart();
+    @Override public void onStart() {
+        super.onStart();
+        reloadCart();
+    }
 
-        if (cart == null) {
-            getActivity().finish();
-            return;
-        }
+    @Override public void onDestroy() {
+        mEventBus.unregister(this);
+        super.onDestroy();
+    }
+
+    @NonNull Cart reloadCart() {
+        Cart cart = mSharedPreferencesManager.readCart();
+        mCartItemsAdapter.setCart(cart.toList());
+        return cart;
+    }
+
+    @Subscribe public void onItemRemoveFromCart(@NonNull OnItemRemoveFromCartEvent event) {
+        Cart cart = mSharedPreferencesManager.readCart();
+        cart.remove(event.mCartItem);
+        mSharedPreferencesManager.saveCart(cart);
+        reloadCart();
+
+        mEventBus.post(new OnCartChangedEvent());
     }
 }

@@ -8,7 +8,9 @@ import com.artemzin.android.yotatask.model.ActiveModelModule;
 import com.artemzin.android.yotatask.model.ItemsActiveModel;
 import com.artemzin.android.yotatask.storage.SharedPreferencesManager;
 import com.artemzin.android.yotatask.storage.StorageModule;
+import com.artemzin.android.yotatask.ui.activity.CartActivity;
 import com.artemzin.android.yotatask.ui.activity.MainActivity;
+import com.artemzin.android.yotatask.ui.adapter.CartItemsAdapter;
 import com.artemzin.android.yotatask.ui.adapter.ItemsAdapter;
 import com.artemzin.android.yotatask.ui.fragment.CartFragment;
 import com.artemzin.android.yotatask.ui.fragment.ItemsListFragment;
@@ -36,7 +38,9 @@ import dagger.Provides;
             ItemsAdapter.class,
             MainActivity.class,
             SharedPreferencesManager.class,
-            CartFragment.class
+            CartFragment.class,
+            CartItemsAdapter.class,
+            CartActivity.class
         }
 )
 public class AppModule {

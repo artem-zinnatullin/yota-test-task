@@ -49,5 +49,24 @@ public class ItemsResponse {
         @NonNull public BigDecimal getPrice() {
             return mPrice;
         }
+
+        @Override public int hashCode() {
+            return mId.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Item item = (Item) o;
+
+            if (mPos != item.mPos) return false;
+            if (!mId.equals(item.mId)) return false;
+            if (mName != null ? !mName.equals(item.mName) : item.mName != null) return false;
+            if (!mPrice.equals(item.mPrice)) return false;
+
+            return true;
+        }
     }
 }

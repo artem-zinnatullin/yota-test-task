@@ -7,12 +7,7 @@ import android.support.annotation.Nullable;
 
 import com.artemzin.android.yotatask.Loggi;
 import com.artemzin.android.yotatask.YotaTaskApp;
-import com.artemzin.android.yotatask.api.response.ItemsResponse;
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -34,27 +29,20 @@ public class SharedPreferencesManager {
         mSharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    public void saveCart(@NonNull Map<ItemsResponse.Item, Integer> itemAndQuantityMap) {
-        List<Cart.CartItem> cartItems = new ArrayList<Cart.CartItem>(itemAndQuantityMap.size());
-
-        for (ItemsResponse.Item item : itemAndQuantityMap.keySet()) {
-            cartItems.add(new Cart.CartItem(item, itemAndQuantityMap.get(item)));
-        }
-
-        Cart cart = new Cart(cartItems);
-
+    public void saveCart(@Nullable Cart cart) {
         mSharedPreferences
                 .edit()
-                .putString(PREFERENCE_CART, mGson.toJson(cart))
+                .putString(PREFERENCE_CART, cart != null ? mGson.toJson(cart) : "")
                 .apply();
     }
 
-    @Nullable public Cart readCart() {
+    @NonNull public Cart readCart() {
         try {
-            return mGson.fromJson(mSharedPreferences.getString(PREFERENCE_CART, ""), Cart.class);
+            Cart cart = mGson.fromJson(mSharedPreferences.getString(PREFERENCE_CART, ""), Cart.class);
+            return cart != null ? cart : new Cart();
         } catch (Throwable throwable) {
             Loggi.e(Loggi.classNameAsTag(this), "can not read saved cart value", throwable);
-            return null;
+            return new Cart(); // empty cart
         }
     }
 }

@@ -110,7 +110,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         return price + " rub";
     }
 
-    @NonNull private static String formatPriceWithQuantity(@NonNull BigDecimal price, int quantity) {
+    @NonNull public static String formatPriceWithQuantity(@NonNull BigDecimal price, int quantity) {
         return String.format("%s x %d = %s", price.toString(), quantity, formatPrice(price.multiply(new BigDecimal(quantity))));
     }
 
