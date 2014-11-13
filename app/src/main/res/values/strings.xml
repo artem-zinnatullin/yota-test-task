@@ -15,4 +15,12 @@
     <string name="cart_item_price">Цена: %s</string>
     <string name="cart_item_quantity">Количество: %s</string>
     <string name="cart_item_total_sum">Итого: %s</string>
+
+    <string name="order_email_subject">Заказ</string>
+    <string name="order_email_body">Номер телефона: %1$s, email: %2$s</string>
+    <string name="order_email_no_phone_number">не определен</string>
+    <string name="order_email_no_user_email">не определен</string>
+    <string name="order_email_can_not_create_order_file">Не удалось сохранить файл заказа</string>
+
+    <string name="order_email_chooser_dialog_title">Отправка заказа через email</string>
 </resources>
