@@ -7,7 +7,7 @@
 * By clicikng on the `Cart` in `ActionBar` app should open separate screen with list of items in the `Cart`.
 * Each item in the `Cart` should contain: Item Name, Price, Quantity, Sum == Price x Quantity and Remove button.
 
-*You can download `apk` in the releases section of the repository*.
+**You can download `apk` in the releases section of the repository.**
 
 Some screenshots:
 
