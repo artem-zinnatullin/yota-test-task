@@ -8,3 +8,8 @@
 * Each item in the `Cart` should contain: Item Name, Price, Quantity, Sum == Price x Quantity and Remove button.
 
 *You can download `apk` in the releases section of the repository*.
+
+Some screenshots:
+<img src="screenshots/1.png" alt="First screen" height="500px"/>&nbsp;<img src="screenshots/2.png" alt="Second screen" height="500px"/>
+
+<img src="screenshots/3.png" alt="Sending order" height="500px"/>&nbsp;<img src="screenshots/4.png" alt="Gmail with order attached" height="500px"/>
